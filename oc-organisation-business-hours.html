@@ -10,79 +10,80 @@
       :host {
         display: block;
       }
-
-      h3 {
-        display: inline-block;
-      }
-      paper-toggle-button {
-        display: inline-block;
-      }
     </style>
 
     <h3>Monday</h3>
     <paper-toggle-button checked='{{ _openMondays }}'>[[ _getToggleText(_openMondays) ]]</paper-toggle-button>
     <iron-collapse opened="[[ _openMondays ]]">
       <div>
-        <oc-time-picker></oc-time-picker>
+        <oc-time-picker label="From"></oc-time-picker>
+        <oc-time-picker label="Until"></oc-time-picker>
       </div>
     </iron-collapse>
-
+    <hr>
     <h3>Tuesday</h3>
     <paper-toggle-button checked='{{ _openTuesdays }}'>[[ _getToggleText(_openTuesdays) ]]</paper-toggle-button>
     <iron-collapse opened="[[ _openTuesdays ]]">
       <div>
-        <oc-time-picker></oc-time-picker>
+        <oc-time-picker label="From"></oc-time-picker>
+        <oc-time-picker label="Until"></oc-time-picker>
       </div>
     </iron-collapse>
-
+    <hr>
     <h3>Wednesday</h3>
     <paper-toggle-button checked='{{ _openWednesdays }}'>[[ _getToggleText(_openWednesdays) ]]</paper-toggle-button>
     <iron-collapse opened="[[ _openWednesdays ]]">
       <div>
-        <oc-time-picker></oc-time-picker>
+        <oc-time-picker label="From"></oc-time-picker>
+        <oc-time-picker label="Until"></oc-time-picker>
       </div>
     </iron-collapse>
-
+    <hr>
     <h3>Thursday</h3>
     <paper-toggle-button checked='{{ _openThursdays }}'>[[ _getToggleText(_openThursdays) ]]</paper-toggle-button>
     <iron-collapse opened="[[ _openThursdays ]]">
       <div>
-        <oc-time-picker></oc-time-picker>
+        <oc-time-picker label="From"></oc-time-picker>
+        <oc-time-picker label="Until"></oc-time-picker>
       </div>
     </iron-collapse>
-
+    <hr>
     <h3>Friday</h3>
     <paper-toggle-button checked='{{ _openFridays }}'>[[ _getToggleText(_openFridays) ]]</paper-toggle-button>
     <iron-collapse opened="[[ _openFridays ]]">
       <div>
-        <oc-time-picker></oc-time-picker>
+        <oc-time-picker label="From"></oc-time-picker>
+        <oc-time-picker label="Until"></oc-time-picker>
       </div>
     </iron-collapse>
-
+    <hr>
     <h3>Saturday</h3>
     <paper-toggle-button checked='{{ _openSaturdays }}'>[[ _getToggleText(_openSaturdays) ]]</paper-toggle-button>
     <iron-collapse opened="[[ _openSaturdays ]]">
       <div>
-        <oc-time-picker></oc-time-picker>
+        <oc-time-picker label="From"></oc-time-picker>
+        <oc-time-picker label="Until"></oc-time-picker>
       </div>
     </iron-collapse>
-
+    <hr>
     <h3>Sunday</h3>
     <paper-toggle-button checked='{{ _openSundays }}'>[[ _getToggleText(_openSundays) ]]</paper-toggle-button>
     <iron-collapse opened="[[ _openSundays ]]">
       <div>
-        <oc-time-picker></oc-time-picker>
+        <oc-time-picker label="From"></oc-time-picker>
+        <oc-time-picker label="Until"></oc-time-picker>
       </div>
     </iron-collapse>
-
+    <hr>
     <h3>Public Holidays</h3>
     <paper-toggle-button checked='{{ _openPublicHolidays }}'>[[ _getToggleText(_openPublicHolidays) ]]</paper-toggle-button>
     <iron-collapse opened="[[ _openPublicHolidays ]]">
       <div>
-        <oc-time-picker></oc-time-picker>
+        <oc-time-picker label="From"></oc-time-picker>
+        <oc-time-picker label="Until"></oc-time-picker>
       </div>
     </iron-collapse>
-
+    <hr>
   </template>
 
   <script>
