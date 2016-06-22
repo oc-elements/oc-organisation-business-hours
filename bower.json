@@ -3,7 +3,10 @@
   "description": "Element providing organisation business hours editing",
   "main": "oc-organisation-business-hours.html",
   "dependencies": {
-    "polymer": "Polymer/polymer#^1.4.0"
+    "polymer": "Polymer/polymer#^1.4.0",
+    "paper-toggle-button": "PolymerElements/paper-toggle-button#^1.1.2",
+    "iron-collapse": "PolymerElements/iron-collapse#^1.1.0",
+    "oc-time-picker": "*"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
