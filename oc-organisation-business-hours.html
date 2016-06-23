@@ -2,106 +2,129 @@
 <link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="../iron-collapse/iron-collapse.html">
 <link rel="import" href="../oc-time-picker/oc-time-picker.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../oc-organisation-api/oc-organisation-api.html">
+<link rel="import" href="../oc-core-utils/oc-api-consumer-behaviour.html">
+<link rel="import" href="../paper-toast/paper-toast.html">
 
 <!--@demo-->
 <dom-module id="oc-organisation-business-hours">
   <template>
+
+    <oc-organisation-api id="organisationApi"></oc-organisation-api>
+
     <style>
       :host {
         display: block;
       }
     </style>
 
-    <h3>Monday</h3>
-    <paper-toggle-button checked='{{ _openMondays }}'>[[ _getToggleText(_openMondays) ]]</paper-toggle-button>
-    <iron-collapse opened="[[ _openMondays ]]">
-      <div>
-        <oc-time-picker label="From"></oc-time-picker>
-        <oc-time-picker label="Until"></oc-time-picker>
-      </div>
-    </iron-collapse>
-    <hr>
-    <h3>Tuesday</h3>
-    <paper-toggle-button checked='{{ _openTuesdays }}'>[[ _getToggleText(_openTuesdays) ]]</paper-toggle-button>
-    <iron-collapse opened="[[ _openTuesdays ]]">
-      <div>
-        <oc-time-picker label="From"></oc-time-picker>
-        <oc-time-picker label="Until"></oc-time-picker>
-      </div>
-    </iron-collapse>
-    <hr>
-    <h3>Wednesday</h3>
-    <paper-toggle-button checked='{{ _openWednesdays }}'>[[ _getToggleText(_openWednesdays) ]]</paper-toggle-button>
-    <iron-collapse opened="[[ _openWednesdays ]]">
-      <div>
-        <oc-time-picker label="From"></oc-time-picker>
-        <oc-time-picker label="Until"></oc-time-picker>
-      </div>
-    </iron-collapse>
-    <hr>
-    <h3>Thursday</h3>
-    <paper-toggle-button checked='{{ _openThursdays }}'>[[ _getToggleText(_openThursdays) ]]</paper-toggle-button>
-    <iron-collapse opened="[[ _openThursdays ]]">
-      <div>
-        <oc-time-picker label="From"></oc-time-picker>
-        <oc-time-picker label="Until"></oc-time-picker>
-      </div>
-    </iron-collapse>
-    <hr>
-    <h3>Friday</h3>
-    <paper-toggle-button checked='{{ _openFridays }}'>[[ _getToggleText(_openFridays) ]]</paper-toggle-button>
-    <iron-collapse opened="[[ _openFridays ]]">
-      <div>
-        <oc-time-picker label="From"></oc-time-picker>
-        <oc-time-picker label="Until"></oc-time-picker>
-      </div>
-    </iron-collapse>
-    <hr>
-    <h3>Saturday</h3>
-    <paper-toggle-button checked='{{ _openSaturdays }}'>[[ _getToggleText(_openSaturdays) ]]</paper-toggle-button>
-    <iron-collapse opened="[[ _openSaturdays ]]">
-      <div>
-        <oc-time-picker label="From"></oc-time-picker>
-        <oc-time-picker label="Until"></oc-time-picker>
-      </div>
-    </iron-collapse>
-    <hr>
-    <h3>Sunday</h3>
-    <paper-toggle-button checked='{{ _openSundays }}'>[[ _getToggleText(_openSundays) ]]</paper-toggle-button>
-    <iron-collapse opened="[[ _openSundays ]]">
-      <div>
-        <oc-time-picker label="From"></oc-time-picker>
-        <oc-time-picker label="Until"></oc-time-picker>
-      </div>
-    </iron-collapse>
-    <hr>
-    <h3>Public Holidays</h3>
-    <paper-toggle-button checked='{{ _openPublicHolidays }}'>[[ _getToggleText(_openPublicHolidays) ]]</paper-toggle-button>
-    <iron-collapse opened="[[ _openPublicHolidays ]]">
-      <div>
-        <oc-time-picker label="From"></oc-time-picker>
-        <oc-time-picker label="Until"></oc-time-picker>
-      </div>
-    </iron-collapse>
-    <hr>
+    <template id="weekDays" is="dom-repeat" items="[[ _businessHours ]]" as="businessHours">
+      <h3>[[ businessHours.dayName  ]]</h3>
+      <paper-toggle-button id='[[ _generateId("toggle_", businessHours)]]' dayid="[[ businessHours.day ]]" checked="[[ _isOpen(businessHours) ]]" on-tap="_toggleDayStatus">[[ _getToggleText(businessHours) ]]</paper-toggle-button>
+      <iron-collapse id='[[ _generateId("collapse_", businessHours)]]' opened="[[ _isOpen(businessHours) ]]">
+        <div>
+          <oc-time-picker id='[[ _generateId("fromTime_", businessHours) ]]' dayid="[[ businessHours.day ]]"  class="fromTimePicker" label="From" time="{{ businessHours.openTime }}"></oc-time-picker>
+          <oc-time-picker id='[[ _generateId("untilTime_", businessHours) ]]' dayid="[[ businessHours.day ]]" class="untilTimePicker" label="Until" time="{{ businessHours.closeTime }}"></oc-time-picker>
+          <paper-button id='[[ _generateId("applyAll_", businessHours) ]]' dayid="[[ businessHours.day ]]" on-tap="_applyToAll">Make all days have this time</paper-button>
+        </div>
+      </iron-collapse>
+      <hr>
+    </template>
+
+    <paper-button on-tap="_save">Save</paper-button>
+
+    <paper-toast id="toast"></paper-toast>
+
   </template>
 
   <script>
     Polymer({
-
       is: 'oc-organisation-business-hours',
+      behaviors: [OC.Behaviours.ApiConsumer],
 
       properties: {
-        prop1: {
-          type: String,
-          value: 'oc-organisation-business-hours'
+        organisationId: Number,
+        _businessHours: {
+          type: Array,
+          notify: true
         },
       },
 
-      _getToggleText: function (open) {
-        return open ? "Open" : "Closed";
-      }
+      ready: function() {
 
+        this.$.organisationApi.getOrganisationHours(this.organisationId)
+                .then(this._setPropertyResponseResults.bind(this, '_businessHours'))
+                .catch();
+      },
+
+      _getToggleText: function (businessHours) {
+
+        return this._isOpen(businessHours) ? "Open" : "Closed";
+      },
+
+      _isOpen: function(businessHours) {
+
+        return !(businessHours.openTime === null && businessHours.closeTime === null);
+      },
+
+      _toggleDayStatus: function (event) {
+
+        Polymer.dom(this.root).querySelector('#collapse_' + event.currentTarget.dayid).toggle();
+        if (!event.currentTarget.checked) {
+          Polymer.dom(this.root).querySelector('#fromTime_' + event.currentTarget.dayid).time = null;
+          Polymer.dom(this.root).querySelector('#untilTime_' + event.currentTarget.dayid).time = null;
+        }
+      },
+
+      _generateId: function (prefix, businessHours) {
+
+        return prefix + businessHours.day;
+      },
+
+      _applyToAll: function(event) {
+
+        var allFromTimePickers = Polymer.dom(this.root).querySelectorAll('.fromTimePicker');
+        var allUntilTimePickers = Polymer.dom(this.root).querySelectorAll('.untilTimePicker');
+        var fromTime = Polymer.dom(this.root).querySelector('#fromTime_' + event.currentTarget.dayid).time;
+        var untilTime = Polymer.dom(this.root).querySelector('#untilTime_' + event.currentTarget.dayid).time;
+
+        for (var i in allFromTimePickers) {
+          if (Polymer.dom(this.root).querySelector('#toggle_' + allFromTimePickers[i].dayid).checked) {
+            allFromTimePickers[i].time = fromTime;
+          }
+        }
+
+        for (var i in allUntilTimePickers) {
+          if (Polymer.dom(this.root).querySelector('#toggle_' + allUntilTimePickers[i].dayid).checked) {
+            allUntilTimePickers[i].time = untilTime;
+          }
+        }
+      },
+
+      _save: function() {
+
+        var businessHours = [];
+
+        for (var i in this._businessHours) {
+          var fromTime = Polymer.dom(this.root).querySelector('#fromTime_' + this._businessHours[i].day).time;
+          var untilTime = Polymer.dom(this.root).querySelector('#untilTime_' + this._businessHours[i].day).time;
+
+          businessHours.push({
+            day: this._businessHours[i].day,
+            openTime: fromTime,
+            closeTime: untilTime
+          });
+        }
+
+        this.$.organisationApi.updateOrganisationHours(this.organisationId, businessHours)
+                .then((function() {
+                  this.$.toast.show('Success! Business hours updated.');
+                }).bind(this))
+                .catch((function(error) {
+                  this.$.toast.show(error || 'Error: Failed to update business hours.');
+                }).bind(this));
+      }
     });
   </script>
 </dom-module>
