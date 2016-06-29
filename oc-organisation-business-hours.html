@@ -51,7 +51,11 @@
         },
       },
 
-      ready: function() {
+      observers: [
+        'organisationIdChanged(organisationId)'
+      ],
+
+      organisationIdChanged: function(organisationId) {
 
         this.$.organisationApi.getOrganisationHours(this.organisationId)
                 .then(this._setPropertyResponseResults.bind(this, '_businessHours'))
