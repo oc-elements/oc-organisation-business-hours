@@ -1,5 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../paper-material/paper-material.html">
 <link rel="import" href="../iron-collapse/iron-collapse.html">
 <link rel="import" href="../oc-time-picker/oc-time-picker.html">
 <link rel="import" href="../paper-button/paper-button.html">
@@ -9,33 +10,49 @@
 
 <!--@demo-->
 <dom-module id="oc-organisation-business-hours">
-  <template>
 
+  <style>
+    :host {
+      display: block;
+    }
+    paper-material {
+      background-color: #fff;
+      padding: 10px;
+      margin: 0px 0px 10px 0px;
+    }
+    oc-time-picker {
+      max-width: 260px;
+      width: 100%;
+    }
+    paper-button[save]:not([disabled]) {
+      margin: 1em 0 0;
+      background-color: var(--primary-color);
+      color: #fff;
+    }
+    paper-toggle-button {
+      max-width: 100px;
+      width: 100%;
+    }
+  </style>
+
+  <template>
     <oc-organisation-api id="organisationApi"></oc-organisation-api>
 
-    <style>
-      :host {
-        display: block;
-      }
-    </style>
-
     <template id="weekDays" is="dom-repeat" items="[[ _businessHours ]]" as="businessHours">
-      <h3>[[ businessHours.dayName  ]]</h3>
-      <paper-toggle-button id='[[ _generateId("toggle_", businessHours)]]' dayid="[[ businessHours.day ]]" checked="[[ _isOpen(businessHours) ]]" on-tap="_toggleDayStatus">[[ _getToggleText(businessHours) ]]</paper-toggle-button>
-      <iron-collapse id='[[ _generateId("collapse_", businessHours)]]' opened="[[ _isOpen(businessHours) ]]">
-        <div>
-          <oc-time-picker id='[[ _generateId("fromTime_", businessHours) ]]' dayid="[[ businessHours.day ]]"  class="fromTimePicker" label="From" time="{{ businessHours.openTime }}"></oc-time-picker>
-          <oc-time-picker id='[[ _generateId("untilTime_", businessHours) ]]' dayid="[[ businessHours.day ]]" class="untilTimePicker" label="Until" time="{{ businessHours.closeTime }}"></oc-time-picker>
-          <paper-button id='[[ _generateId("applyAll_", businessHours) ]]' dayid="[[ businessHours.day ]]" on-tap="_applyToAll">Make all days have this time</paper-button>
-        </div>
-      </iron-collapse>
-      <hr>
+      <paper-material>
+        <h3>[[ businessHours.dayName  ]]</h3>
+        <paper-toggle-button id='[[ _generateId("toggle_", businessHours)]]' dayid="[[ businessHours.day ]]" checked="[[ _isOpen(businessHours) ]]" on-tap="_toggleDayStatus">[[ _getToggleText(businessHours) ]]</paper-toggle-button>
+        <iron-collapse id='[[ _generateId("collapse_", businessHours)]]' opened="[[ _isOpen(businessHours) ]]">
+          <div>
+            <oc-time-picker id='[[ _generateId("fromTime_", businessHours) ]]' dayid="[[ businessHours.day ]]"  class="fromTimePicker" label="From" time="{{ businessHours.openTime }}"></oc-time-picker>
+            <oc-time-picker id='[[ _generateId("untilTime_", businessHours) ]]' dayid="[[ businessHours.day ]]" class="untilTimePicker" label="Until" time="{{ businessHours.closeTime }}"></oc-time-picker>
+            <paper-button id='[[ _generateId("applyAll_", businessHours) ]]' dayid="[[ businessHours.day ]]" on-tap="_applyToAll">Make all days have this time</paper-button>
+          </div>
+        </iron-collapse>
+      </paper-material>
     </template>
 
-    <paper-button on-tap="_save">Save</paper-button>
-
-    <paper-toast id="toast"></paper-toast>
-
+    <paper-button id="saveButton"  on-tap="_save" save raised disabled$="[[ loading ]]">Save</paper-button>
   </template>
 
   <script>
@@ -45,21 +62,32 @@
 
       properties: {
         organisationId: Number,
+        loading: {
+          type: Boolean,
+          notify: true
+        },
         _businessHours: {
           type: Array,
           notify: true
-        },
+        }
       },
 
       observers: [
-        'organisationIdChanged(organisationId)'
+        '_organisationIdChanged(organisationId)'
       ],
 
-      organisationIdChanged: function(organisationId) {
+      refresh: function() {
+        if (!this.organisationId) return;
+        this._organisationIdChanged(this.organisationId);
+      },
+
+      _organisationIdChanged: function(organisationId) {
+        this.loading = true;
 
         this.$.organisationApi.getOrganisationHours(this.organisationId)
                 .then(this._setPropertyResponseResults.bind(this, '_businessHours'))
-                .catch();
+                .catch(console.error)
+                .finally(this.set.bind(this, 'loading', false, false));
       },
 
       _getToggleText: function (businessHours) {
@@ -108,6 +136,8 @@
 
       _save: function() {
 
+        this.$.saveButton.disabled = true;
+
         var businessHours = [];
 
         for (var i in this._businessHours) {
@@ -123,11 +153,12 @@
 
         this.$.organisationApi.updateOrganisationHours(this.organisationId, businessHours)
                 .then((function() {
-                  this.$.toast.show('Success! Business hours updated.');
+                  this.fire('saved');
                 }).bind(this))
                 .catch((function(error) {
-                  this.$.toast.show(error || 'Error: Failed to update business hours.');
-                }).bind(this));
+                  this.fire('error', error);
+                }).bind(this))
+                .finally(function(){ this.$.saveButton.disabled = false; }.bind(this));
       }
     });
   </script>
