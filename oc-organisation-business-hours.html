@@ -38,7 +38,7 @@
   <template>
     <oc-organisation-api id="organisationApi"></oc-organisation-api>
 
-    <template id="weekDays" is="dom-repeat" items="[[ _businessHours ]]" as="businessHours">
+    <template id="weekDays" is="dom-repeat" items="[[ _displayedHours ]]" as="businessHours">
       <paper-material>
         <h3>[[ businessHours.dayName  ]]</h3>
         <paper-toggle-button id='[[ _generateId("toggle_", businessHours)]]' dayid="[[ businessHours.day ]]" checked="[[ _isOpen(businessHours) ]]" on-tap="_toggleDayStatus">[[ _getToggleText(businessHours) ]]</paper-toggle-button>
