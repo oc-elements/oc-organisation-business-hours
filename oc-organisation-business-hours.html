@@ -38,7 +38,7 @@
   <template>
     <oc-organisation-api id="organisationApi"></oc-organisation-api>
 
-    <template id="weekDays" is="dom-repeat" items="[[ _displayedHours ]]" as="businessHours">
+    <template id="weekDays" is="dom-repeat" items="[[ _businessHours]]" as="businessHours">
       <paper-material>
         <h3>[[ businessHours.dayName  ]]</h3>
         <paper-toggle-button id='[[ _generateId("toggle_", businessHours)]]' dayid="[[ businessHours.day ]]" checked="[[ _isOpen(businessHours) ]]" on-tap="_toggleDayStatus">[[ _getToggleText(businessHours) ]]</paper-toggle-button>
@@ -67,12 +67,7 @@
           notify: true
         },
         _businessHours: {
-          type: Array,
-          notify: true
-          },
-        _displayedHours: {
-          type: Array,
-          computed: "_computeBusinessHours(_businessHours)"
+          type: Array
         }
       },
       observers: [
@@ -88,7 +83,9 @@
         this.loading = true;
 
         this.$.organisationApi.getOrganisationHours(this.organisationId)
-                .then(this._setPropertyResponseResults.bind(this, '_businessHours'))
+                .then(function(request){
+                  this._businessHours = this._computeBusinessHours(request.response.results)
+                }.bind(this))
                 .catch(console.error)
                 .finally(this.set.bind(this, 'loading', false, false));
       },
@@ -98,29 +95,46 @@
         var daysOfWeek = [
           {
             "day": 1,
-            "dayName": "Monday"
+            "dayName": "Monday",
+            "openTime" : null,
+            "closeTime" : null,
+            "changed" : false
           }, {
             "day": 2,
-            "dayName": "Tuesday"
+            "dayName": "Tuesday",
+            "openTime" : null,
+            "closeTime" : null
           }, {
             "day": 3,
-            "dayName": "Wednesday"
+            "dayName": "Wednesday",
+            "openTime" : null,
+            "closeTime" : null
           }, {
             "day": 4,
-            "dayName": "Thursday"
+            "dayName": "Thursday",
+            "openTime" : null,
+            "closeTime" : null
           }, {
             "day": 5,
-            "dayName": "Friday"
+            "dayName": "Friday",
+            "openTime" : null,
+            "closeTime" : null
           }, {
             "day": 6,
-            "dayName": "Saturday"
+            "dayName": "Saturday",
+            "openTime" : null,
+            "closeTime" : null
           }, {
             "day": 7,
-            "dayName": "Sunday"
+            "dayName": "Sunday",
+            "openTime" : null,
+            "closeTime" : null
           }, {
             "day": 8,
-            "dayName": "Public Holiday"
-        }];
+            "dayName": "Public Holiday",
+            "openTime" : null,
+            "closeTime" : null
+          }];
 
         daysOfWeek.map(function(day){
           for (var i=0; i < businessHours.length; i++) {
