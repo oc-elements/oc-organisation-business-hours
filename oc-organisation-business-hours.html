@@ -69,9 +69,12 @@
         _businessHours: {
           type: Array,
           notify: true
+          },
+        _displayedHours: {
+          type: Array,
+          computed: "_computeBusinessHours(_businessHours)"
         }
       },
-
       observers: [
         '_organisationIdChanged(organisationId)'
       ],
@@ -88,6 +91,48 @@
                 .then(this._setPropertyResponseResults.bind(this, '_businessHours'))
                 .catch(console.error)
                 .finally(this.set.bind(this, 'loading', false, false));
+      },
+
+      _computeBusinessHours: function(businessHours) {
+
+        var daysOfWeek = [
+          {
+            "day": 1,
+            "dayName": "Monday"
+          }, {
+            "day": 2,
+            "dayName": "Tuesday"
+          }, {
+            "day": 3,
+            "dayName": "Wednesday"
+          }, {
+            "day": 4,
+            "dayName": "Thursday"
+          }, {
+            "day": 5,
+            "dayName": "Friday"
+          }, {
+            "day": 6,
+            "dayName": "Saturday"
+          }, {
+            "day": 7,
+            "dayName": "Sunday"
+          }, {
+            "day": 8,
+            "dayName": "Public Holiday"
+        }];
+
+        daysOfWeek.map(function(day){
+          for (var i=0; i < businessHours.length; i++) {
+            if(day.dayName === businessHours[i].name ){
+              return businessHours[i];
+            }else{
+              return day;
+            }
+          }
+        });
+
+        return daysOfWeek;
       },
 
       _getToggleText: function (businessHours) {
