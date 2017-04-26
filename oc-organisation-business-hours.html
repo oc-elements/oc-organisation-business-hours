@@ -24,7 +24,7 @@
       max-width: 260px;
       width: 100%;
     }
-    paper-button[save]:not([disabled]) {
+    paper-button.save:not([disabled]) {
       margin: 1em 0 0;
       background-color: var(--primary-color);
       color: #fff;
@@ -46,13 +46,13 @@
           <div>
             <oc-time-picker id='[[ _generateId("fromTime_", businessHours) ]]' dayid="[[ businessHours.day ]]"  class="fromTimePicker" label="From" time="{{ businessHours.openTime }}"></oc-time-picker>
             <oc-time-picker id='[[ _generateId("untilTime_", businessHours) ]]' dayid="[[ businessHours.day ]]" class="untilTimePicker" label="Until" time="{{ businessHours.closeTime }}"></oc-time-picker>
-            <paper-button id='[[ _generateId("applyAll_", businessHours) ]]' dayid="[[ businessHours.day ]]" on-tap="_applyToAll">Make all days have this time</paper-button>
+            <paper-button id='[[ _generateId("applyAll_", businessHours) ]]' dayid="[[ businessHours.day ]]" raised on-tap="_applyToAll">Make all days have this time</paper-button>
           </div>
         </iron-collapse>
       </paper-material>
     </template>
 
-    <paper-button id="saveButton"  on-tap="_save" save raised disabled$="[[ loading ]]">Save</paper-button>
+    <paper-button id="saveButton"  on-tap="_save" class="save" hidden$="[[ loading ]]" raised disabled$="[[ loading ]]">Save</paper-button>
   </template>
 
   <script>
@@ -136,17 +136,18 @@
             "closeTime" : null
           }];
 
-        daysOfWeek.map(function(day){
+        return  daysOfWeek.map(function(day){
           for (var i=0; i < businessHours.length; i++) {
-            if(day.dayName === businessHours[i].name ){
-              return businessHours[i];
-            }else{
-              return day;
+            if(day.dayName === businessHours[i].dayName ) {
+              if ((businessHours[i].openTime != null) || (businessHours[i].closeTime != null)) {
+                return businessHours[i];
+              }else{
+                return day;
+              }
             }
           }
         });
 
-        return daysOfWeek;
       },
 
       _getToggleText: function (businessHours) {
